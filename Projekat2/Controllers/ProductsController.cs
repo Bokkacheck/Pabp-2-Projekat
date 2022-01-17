@@ -27,6 +27,38 @@ namespace Projekat2.Controllers
             return View(await northwindContext.ToListAsync());
         }
 
+        public IActionResult ProductsForOrder()
+        {
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CompanyName");
+            ViewData["OrderId"] = new SelectList(new List<Orders>(), "OrderId", "OrderId");
+            return View(new List<Products>());
+        }
+
+        public IActionResult ProductsForOrderByCustomer(string CustomerId)
+        {
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CompanyName", CustomerId);
+            ViewData["OrderId"] = new SelectList(_context.Orders.Where(x=> x.CustomerId == CustomerId), "OrderId", "OrderId");
+            return View("ProductsForOrder", new List<Products>());
+        }
+
+        public IActionResult ProductsForOrderByOrder(int OrderId)
+        {
+            Orders orders = _context.Orders.FirstOrDefault(x => x.OrderId == OrderId);
+            List<OrderDetails> orderDetails =  _context.OrderDetails.Include(x => x.Product).Where(x => x.OrderId == OrderId).ToList();
+            string CustomerId = orders.CustomerId;
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CompanyName", CustomerId);
+            ViewData["OrderId"] = new SelectList(_context.Orders.Where(x => x.CustomerId == CustomerId), "OrderId", "OrderId", OrderId);
+
+            List<Products> products = new List<Products>();
+
+            foreach(OrderDetails orderDetail in orderDetails) 
+            {
+                products.Add(orderDetail.Product);
+            }
+
+            return View("ProductsForOrder", products);
+        }
+
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
