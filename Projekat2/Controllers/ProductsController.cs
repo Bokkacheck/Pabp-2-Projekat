@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Projekat2.Models;
+using Projekat2.ViewModels;
 
 namespace Projekat2.Controllers
 {
@@ -58,6 +59,40 @@ namespace Projekat2.Controllers
 
             return View("ProductsForOrder", products);
         }
+
+
+        public IActionResult ProductsSupplierOrder()
+        {
+            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName");
+            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId");
+
+            var results = _context.OrderDetails.Include(x => x.Product)
+                .Include(x => x.Product.Supplier)
+                .Include(x => x.Order)
+                .GroupBy(x => new { x.OrderId, x.Product.SupplierId })
+                .OrderByDescending(x => x.Count())
+                .Select(x => new ProductsSupplierOrder { Count = x.Count(), Order = x.Key.OrderId, Supplier = _context.Suppliers.FirstOrDefault(s => s.SupplierId == x.Key.SupplierId).CompanyName }).ToList();
+
+            return View("ProductsSupplierOrder", results);
+        }
+
+
+        public IActionResult ProductsSupplierOrderResult(int SupplierId, int OrderId)
+        {
+            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", SupplierId);
+            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", OrderId);
+
+            var results = _context.OrderDetails.Include(x => x.Product)
+                .Include(x => x.Product.Supplier)
+                .Include(x => x.Order)
+                .Where(x => x.OrderId == OrderId && x.Product.SupplierId == SupplierId)
+                .GroupBy(x => new { x.OrderId, x.Product.SupplierId })
+                .OrderByDescending(x => x.Count())
+                .Select(x => new ProductsSupplierOrder { Count = x.Count(), Order = x.Key.OrderId, Supplier = _context.Suppliers.FirstOrDefault(s => s.SupplierId == x.Key.SupplierId).CompanyName }).ToList();
+
+            return View("ProductsSupplierOrder", results);
+        }
+
 
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
