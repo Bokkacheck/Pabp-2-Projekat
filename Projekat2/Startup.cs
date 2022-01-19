@@ -26,6 +26,7 @@ namespace Projekat2
         {
             services.AddControllersWithViews();
             services.AddDbContext<NorthwindContext>(optionsBuilder => optionsBuilder.UseSqlServer("Data Source = bojans; Initial Catalog = Northwind; Integrated Security = True"));
+            services.AddCors(options => options.AddPolicy("CORSPOLICY", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,6 +45,8 @@ namespace Projekat2
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseCors("CORSPOLICY");
 
             app.UseEndpoints(endpoints =>
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Projekat2.Models;
 
 namespace Projekat2.Controllers
 {
+    [EnableCors ("CORSPOLICY")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsAPIController : ControllerBase
@@ -23,13 +25,15 @@ namespace Projekat2.Controllers
         // GET: api/ProductsAPI
         [HttpGet]
         [Produces ("application/json")]
+        [EnableCors("CORSPOLICY")]
         public async Task<ActionResult<IEnumerable<Products>>> GetProducts()
         {
-            return await _context.Products.Include(x=>x.Supplier).ToListAsync();
+            return await _context.Products.ToListAsync();
         }
 
         // GET: api/ProductsAPI/5
         [HttpGet("{id}")]
+        [EnableCors("CORSPOLICY")]
         public async Task<ActionResult<Products>> GetProducts(int id)
         {
             var products = await _context.Products.FindAsync(id);
@@ -46,6 +50,7 @@ namespace Projekat2.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
+        [EnableCors("CORSPOLICY")]
         public async Task<IActionResult> PutProducts(int id, Products products)
         {
             if (id != products.ProductId)
@@ -78,6 +83,7 @@ namespace Projekat2.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
+        [EnableCors("CORSPOLICY")]
         public async Task<ActionResult<Products>> PostProducts(Products products)
         {
             _context.Products.Add(products);
@@ -88,6 +94,7 @@ namespace Projekat2.Controllers
 
         // DELETE: api/ProductsAPI/5
         [HttpDelete("{id}")]
+        [EnableCors("CORSPOLICY")]
         public async Task<ActionResult<Products>> DeleteProducts(int id)
         {
             var products = await _context.Products.FindAsync(id);
@@ -102,6 +109,7 @@ namespace Projekat2.Controllers
             return products;
         }
 
+        [EnableCors("CORSPOLICY")]
         private bool ProductsExists(int id)
         {
             return _context.Products.Any(e => e.ProductId == id);
